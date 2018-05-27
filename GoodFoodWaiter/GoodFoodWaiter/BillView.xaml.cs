@@ -14,7 +14,7 @@ namespace GoodFoodWaiter
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class BillView : ContentView
     {
-        private ListView dishListView;
+        private Xamarin.Forms.ListView dishListView;
         private Label subTotalLabel;
         private Label totalLabel;
         public static ObservableCollection<OrderItem> orderList { get; set; }
@@ -39,6 +39,9 @@ namespace GoodFoodWaiter
             dishListView.HeightRequest = 10;
             dishListView.ItemTemplate = orderDataTemplate;
             dishListView.ItemTemplate.SetBinding(TextCell.TextProperty, "dishName");
+
+            dishListView.ItemTapped += OnTap;
+            dishListView.ItemSelected += OnSelect;
 
             stackLayout.Children.Add(dishListView);
             dishListView.ItemsSource = orderList;
@@ -81,21 +84,26 @@ namespace GoodFoodWaiter
         {
             foreach (var order in orderList)
             {
-                if(order.dishName.Equals(orderItem.dishName))
+                if (order.dishName.Equals(orderItem.dishName))
                 {
                     order.amount++;
-                    order.price = order.amount * order.basePrice;
-                    dishListView.ItemsSource = null;
-                    dishListView.ItemsSource = orderList;
                     updatePrices();
+                    refreshDishListView();
                     return;
                 }
             }
 
             orderItem.amount = 1;
             orderList.Add(orderItem);
-            dishListView.HeightRequest = orderList.Count() * 45;
             updatePrices();
+            refreshDishListView();
+        }
+
+        public void refreshDishListView()
+        {
+            dishListView.ItemsSource = null;
+            dishListView.ItemsSource = orderList;
+            dishListView.HeightRequest = orderList.Count() * 45;
         }
 
         public void updatePrices()
@@ -103,11 +111,39 @@ namespace GoodFoodWaiter
             float sum = 0;
             foreach (var order in orderList)
             {
+                order.price = order.amount * order.basePrice;
                 sum += order.price;
             }
 
             subTotalLabel.Text = String.Format("Cena: {0:F2}zł", sum);
             totalLabel.Text = String.Format("Razem: {0:F2}zł", sum * 0.95);
+        }
+
+        public void OnTap(object sender, ItemTappedEventArgs e)
+        {
+            var orderItemView = (OrderItem)e.Item;
+            foreach (var orderItem in orderList)
+            {
+                if(orderItem.dishName.Equals(orderItemView.dishName))
+                {
+                    if(orderItem.amount > 1)
+                    {
+                        orderItem.amount--;
+                    }
+                    else
+                    {
+                        orderList.Remove(orderItem);
+                    }
+                    updatePrices();
+                    refreshDishListView();
+                    break;
+                }
+            }
+        }
+
+        public void OnSelect(object sender, SelectedItemChangedEventArgs e)
+        {
+            ((ListView)sender).SelectedItem = null;
         }
     }
 }
