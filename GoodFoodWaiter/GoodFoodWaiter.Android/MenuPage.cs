@@ -15,7 +15,7 @@ namespace GoodFoodWaiter.Droid
         public MenuPage(RestService restService)
         {
             this.restService = restService;
-            billView = new BillView();
+            billView = new BillView(restService);
         }
 
         public async Task GetDishes(StackLayout stackLayout, string dishType)
@@ -26,7 +26,7 @@ namespace GoodFoodWaiter.Droid
 
             foreach (Dish dish in menu)
             {
-                var dishRow = new DishRow(dish.dishName, dish.price, dish.logoPath);
+                var dishRow = new DishRow(dish.dishId, dish.dishName, dish.price, dish.logoPath);
 
                 var tapGestureRecognizer = new TapGestureRecognizer();
                 tapGestureRecognizer.Tapped += OnTap;
@@ -42,7 +42,7 @@ namespace GoodFoodWaiter.Droid
         private void OnTap(object obj, EventArgs args)
         {
             var dishRow = (DishRow)obj;
-            billView.addOrderItem(new OrderItem{ dishName=dishRow.dishName, price = dishRow.price, basePrice = dishRow.price });
+            billView.addOrderItem(new OrderItem{ dishId = dishRow.dishId, dishName=dishRow.dishName, price = dishRow.price, basePrice = dishRow.price });
             Toast.MakeText(Android.App.Application.Context, "TEST", ToastLength.Short).Show();
         }
     }

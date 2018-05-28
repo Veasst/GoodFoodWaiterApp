@@ -44,11 +44,54 @@ namespace GoodFoodWaiter.Droid
             }
             catch (Exception)
             {
-                Items = null;
             }
 
 
             return Items;
+        }
+
+        public async Task<int> SaveOrderAsync(Order order)
+        {
+            var uri = new Uri("http://goodfoodapi.azurewebsites.net/api/orders");
+
+            var json = JsonConvert.SerializeObject(order);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                HttpResponseMessage response = null;
+                response = await client.PostAsync(uri, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return int.Parse(await response.Content.ReadAsStringAsync());
+                    //Toast.MakeText(Android.App.Application.Context, "POST SUCCESS", ToastLength.Short).Show();
+                }
+            }
+            catch (Exception) { }
+            return -1;
+        }
+
+        public async Task<bool> SaveOrderDishesAsync(List<OrderDish> order)
+        {
+            var uri = new Uri("http://goodfoodapi.azurewebsites.net/api/orders/orderdish");
+
+            var json = JsonConvert.SerializeObject(order);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                HttpResponseMessage response = null;
+                response = await client.PostAsync(uri, content);
+                Toast.MakeText(Android.App.Application.Context, await response.Content.ReadAsStringAsync(), ToastLength.Short).Show();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+            }
+            catch (Exception) { }
+            return false;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using GoodFoodWaiter.Droid.Models;
+﻿using GoodFoodWaiter.Droid;
+using GoodFoodWaiter.Droid.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,13 +15,16 @@ namespace GoodFoodWaiter
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class BillView : ContentView
     {
+        public RestService restService;
         private Xamarin.Forms.ListView dishListView;
         private Label subTotalLabel;
         private Label totalLabel;
         public static ObservableCollection<OrderItem> orderList { get; set; }
-        public BillView()
+
+        public BillView(RestService restService)
         {
             InitializeComponent();
+            this.restService = restService;
             orderList = new ObservableCollection<OrderItem>();
 
             var scrollView = new ScrollView();
@@ -59,6 +63,8 @@ namespace GoodFoodWaiter
             var placeOrderButton = new Button();
             placeOrderButton.Text = "Wyślij";
             placeOrderButton.VerticalOptions = LayoutOptions.Fill;
+            placeOrderButton.Clicked += OnButtonClickAsync;
+
             grid.Children.Add(placeOrderButton, 0, 0);
             Grid.SetRowSpan(placeOrderButton, 4);
 
@@ -106,7 +112,7 @@ namespace GoodFoodWaiter
             dishListView.HeightRequest = orderList.Count() * 45;
         }
 
-        public void updatePrices()
+        private float getPrice()
         {
             float sum = 0;
             foreach (var order in orderList)
@@ -114,9 +120,27 @@ namespace GoodFoodWaiter
                 order.price = order.amount * order.basePrice;
                 sum += order.price;
             }
+            return sum;
+        }
+
+        private float getPriceAfterDiscount()
+        {
+            return (float) (getPrice() * 0.95);
+        }
+
+        public void updatePrices()
+        {
+            float sum = getPrice();
 
             subTotalLabel.Text = String.Format("Cena: {0:F2}zł", sum);
             totalLabel.Text = String.Format("Razem: {0:F2}zł", sum * 0.95);
+        }
+
+        public void clearOrders()
+        {
+            orderList.Clear();
+            updatePrices();
+            refreshDishListView();
         }
 
         public void OnTap(object sender, ItemTappedEventArgs e)
@@ -144,6 +168,26 @@ namespace GoodFoodWaiter
         public void OnSelect(object sender, SelectedItemChangedEventArgs e)
         {
             ((ListView)sender).SelectedItem = null;
+        }
+
+        public async void OnButtonClickAsync(object sender, EventArgs e)
+        {
+            int orderId = await restService.SaveOrderAsync(new Order { amount = getPriceAfterDiscount() });
+            if(orderId == -1)
+            {
+                Android.Widget.Toast.MakeText(Android.App.Application.Context, "Nie udało się wysłać zamówienia", Android.Widget.ToastLength.Short).Show();
+            }
+            List<OrderDish> orderDishes = new List<OrderDish>();
+            foreach (var order in orderList)
+            {
+                orderDishes.Add(new OrderDish { orderId = orderId, dishId = order.dishId, amount = order.amount, price = order.price });
+            }
+
+            if(await restService.SaveOrderDishesAsync(orderDishes))
+            {
+                Android.Widget.Toast.MakeText(Android.App.Application.Context, "Pomyślnie wysłano zamówienie", Android.Widget.ToastLength.Short).Show();
+                clearOrders();
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ namespace GoodFoodWaiter
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class OrderItemView : ContentView
     {
+        public int dishId { get; set; }
         public int amount { get; set; }
         public string dishName { get; set; }
         public float price { get; set; }

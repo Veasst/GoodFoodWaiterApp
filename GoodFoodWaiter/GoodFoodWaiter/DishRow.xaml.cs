@@ -12,6 +12,7 @@ namespace GoodFoodWaiter
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class DishRow : ContentView
 	{
+        public int dishId { get; set; }
         public string dishName { get; set; }
         public float price { get; set; }
 
@@ -32,10 +33,11 @@ namespace GoodFoodWaiter
             Content = grid;
         }
 
-        public DishRow(string name, float price, string logoPath)
+        public DishRow(int dishId, string name, float price, string logoPath)
         {
             InitializeComponent();
 
+            this.dishId = dishId;
             this.dishName = name;
             this.price = price;
 
