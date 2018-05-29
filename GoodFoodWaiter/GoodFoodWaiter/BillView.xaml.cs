@@ -172,7 +172,7 @@ namespace GoodFoodWaiter
 
         public async void OnButtonClickAsync(object sender, EventArgs e)
         {
-            int orderId = await restService.SaveOrderAsync(new Order { amount = getPriceAfterDiscount() });
+            int orderId = await restService.SaveOrderAsync(new Order { total = getPriceAfterDiscount() });
             if(orderId == -1)
             {
                 Android.Widget.Toast.MakeText(Android.App.Application.Context, "Nie udało się wysłać zamówienia", Android.Widget.ToastLength.Short).Show();
