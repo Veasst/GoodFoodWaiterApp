@@ -36,7 +36,6 @@ namespace GoodFoodWaiter
         public void OnAppear(object sender, EventArgs e)
         {
             stackLayout.Children.Add(MenuPage.billView);
-            Toast.MakeText(Android.App.Application.Context, "TEST2", ToastLength.Short).Show();
         }
     }
 }

@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using GoodFoodWaiter.Droid.Models;
 using Newtonsoft.Json;
 
@@ -65,7 +57,6 @@ namespace GoodFoodWaiter.Droid
                 if (response.IsSuccessStatusCode)
                 {
                     return int.Parse(await response.Content.ReadAsStringAsync());
-                    //Toast.MakeText(Android.App.Application.Context, "POST SUCCESS", ToastLength.Short).Show();
                 }
             }
             catch (Exception) { }
@@ -83,7 +74,6 @@ namespace GoodFoodWaiter.Droid
             {
                 HttpResponseMessage response = null;
                 response = await client.PostAsync(uri, content);
-                Toast.MakeText(Android.App.Application.Context, await response.Content.ReadAsStringAsync(), ToastLength.Short).Show();
 
                 if (response.IsSuccessStatusCode)
                 {

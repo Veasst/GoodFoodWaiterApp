@@ -1,8 +1,6 @@
-﻿using Android.Widget;
-using GoodFoodWaiter.Droid.Models;
+﻿using GoodFoodWaiter.Droid.Models;
 using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace GoodFoodWaiter.Droid
@@ -43,7 +41,6 @@ namespace GoodFoodWaiter.Droid
         {
             var dishRow = (DishRow)obj;
             billView.addOrderItem(new OrderItem{ dishId = dishRow.dishId, dishName=dishRow.dishName, price = dishRow.price, basePrice = dishRow.price });
-            Toast.MakeText(Android.App.Application.Context, "TEST", ToastLength.Short).Show();
         }
     }
 }
